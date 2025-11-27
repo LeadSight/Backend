@@ -2,40 +2,79 @@ const pool = require('../helpers/db');
 const NotFoundError = require('../exceptions/NotFoundError');
 
 const NotesModel = {
-    getNotesById: async(id) => {
+    getAllNotes: async () => {
         const query = `
-        SELECT n.id, n.title, n.body
+        SELECT 
+            n.id AS note_id,
+            n.title, 
+            n.body,
+            n.created_at,
+            csn.customer_id,
+            u.username AS sales_username
         FROM notes n
         JOIN customer_sales_notes csn 
             ON csn.note_id = n.id
-        WHERE csn.customer_id = $1;
+        JOIN users u
+            ON u.id = csn.sales_id;
         `;
 
-        const result = await pool.query(query, [id]);
-
+        const result = await pool.query(query);
+        return result.rows;
+    },
+    addNote: async({ noteId, title, body, createdAt, customerSalesNotesId, customerId, sales }) => {
+        const salesIdQuery = `SELECT id FROM users WHERE username = $1`;
+        
+        const result = await pool.query(salesIdQuery, [sales]);
+        
         if (!result.rows.length) {
-            throw new NotFoundError('Customer ID Not Registered');
+            throw new NotFoundError(`Failed to add Note. Invalid User ${result.rows[0]}`);
         }
-    },
-    addNote: async({ noteId, title, body }) => {
-        const query = `
-        INSERT INTO notes (id, title, body)
-        VALUES ($1, $2, $3)
-        RETURNING id
+        
+        const salesId = result.rows[0].id;
+        
+        // Add to notes table
+        const noteQuery = `
+        INSERT INTO notes (id, title, body, created_at)
+        VALUES ($1, $2, $3, $4)
         `;
-        const result = await pool.query(query, [noteId, title, body]);
-                
-        return result.rows[0].id;
-    },
-    addCustomerSalesNotes: async({ id, customerId, salesId, noteId, }) => {
-        const query = `
+        
+        await pool.query(noteQuery, [noteId, title, body, createdAt]);
+        
+        // Add to customer_sales_notes table
+        const relationQuery = `
         INSERT INTO customer_sales_notes (id, customer_id, sales_id, note_id)
         VALUES ($1, $2, $3, $4)
-        RETURNING id
         `;
-        const result = await pool.query(query, [id, customerId, salesId, noteId]);
+        
+        await pool.query(relationQuery, [customerSalesNotesId, customerId, salesId, noteId]);
+
+        return;
+    },
+    editNote: async({ id, title, body }) => {
+        const query = `SELECT * FROM notes WHERE id = $1`;
+
+        const noteExist = await pool.query(query, [id]);
+        
+        if (!noteExist.rows.length) {
+            throw new NotFoundError('Note ID Not Registered');
+        }
+        
+        const editQuery = ` UPDATE notes SET title = $1, body = $2 WHERE id = $3`;
+        
+        await pool.query(editQuery, [title, body, id]);
                 
-        return result.rows[0].id;
+        return;
+    },
+    deleteNote: async(id) => {
+        const query = `DELETE FROM notes WHERE id = $1 RETURNING id`;
+
+        const results = await pool.query(query, [id]);
+
+        if (!results.rowCount) {
+            throw new NotFoundError('Note ID Not Registered');
+        }
+
+        return;
     }
 }
 

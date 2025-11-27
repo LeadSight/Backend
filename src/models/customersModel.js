@@ -1,4 +1,5 @@
 const pool = require('../helpers/db');
+const NotesModel = require('../models/notesModel');
 
 const CustomersModel = {
     getCustomers: async() => {
@@ -34,6 +35,12 @@ const CustomersModel = {
         const economicIndicators = await CustomersModel.getEconomicIndicators();
 
         const mergedCustomers =  CustomersModel.mergeCustomersWithEcon(customers, economicIndicators);
+
+        // load all notes once
+        const allNotes = await NotesModel.getAllNotes();
+
+        // group notes by customerId
+        const notesByCustomer = CustomersModel.groupNotesByCustomer(allNotes);
         
         // Placeholder probability (to be replaced later)
         const computeProbability = () => Math.random();
@@ -50,7 +57,7 @@ const CustomersModel = {
                 hasDefault: customer.default === "yes" ? "Yes" : "No",
                 category: customer.y === "yes" ? "Priority" : "Not Priority",
                 probability: `${Math.round(probability * 100)}%`, // TODO: This is still fake
-                notes: [],
+                notes: notesByCustomer[customer.id] || [],
                 ...customer,
                 y: customer.y === "yes" ? "Yes" : "No"
             };
@@ -65,6 +72,36 @@ const CustomersModel = {
         });
 
         return rankedCustomers;
+    },
+    groupNotesByCustomer: (notesArray) => {
+        const map = {};
+
+        const formatDateId = (isoString) => {
+            return new Date(isoString).toLocaleString("id-ID", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+            });
+        };
+
+
+        for (const note of notesArray) {
+            if (!map[note.customer_id]) {
+            map[note.customer_id] = [];
+            }
+            map[note.customer_id].push({
+            id: note.note_id,
+            customerId: note.customer_id,
+            title: note.title,
+            body: note.body,
+            createdAt: formatDateId(note.created_at),
+            sales: note.sales_username,
+            });
+        }
+
+        return map;
     },
     computeDetailAverages: (customers, detailKeys) => {
         const totals = {};

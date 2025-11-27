@@ -16,14 +16,17 @@ exports.up = (pgm) => {
     customer_id: {
       type: 'VARCHAR(50)',
       references: 'customers(id)',
+      onDelete: 'CASCADE',
     },
     sales_id: {
       type: 'VARCHAR(50)',
       references: 'users(id)',
+      onDelete: 'CASCADE',
     },
     note_id: {
       type: 'VARCHAR(50)',
       references: 'notes(id)',
+      onDelete: 'CASCADE',
     },
   });
 };

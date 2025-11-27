@@ -133,8 +133,8 @@ async function importCSV() {
         console.log(`📄 CSV Loaded: ${rows.length} rows`);
         console.log("📤 Inserting data into PostgreSQL...");
 
-        // await insertCustomers(client, rows);
         try {
+          await insertCustomers(client, rows);
           await insertEconomicIndicators(client, rows);
           resolve();
         } catch (err) {

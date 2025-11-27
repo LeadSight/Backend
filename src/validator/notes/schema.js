@@ -3,14 +3,17 @@ const Joi = require('joi');
 const NotePayloadSchema = Joi.object({
   title: Joi.string().required(),
   body: Joi.string().required(),
-});
-
-const CustomerSalesNotePayloadSchema = Joi.object({
+  createdAt: Joi.string().isoDate().required(),
   customerId: Joi.string().required(),
-  salesId: Joi.string().required(),
-});
+  sales: Joi.string().required(),
+})
+
+const EditNotePayloadSchema = Joi.object({
+  title: Joi.string().required(),
+  body: Joi.string().required(),
+})
 
 module.exports = {
   NotePayloadSchema,
-  CustomerSalesNotePayloadSchema,
+  EditNotePayloadSchema
 };

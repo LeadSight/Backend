@@ -1,4 +1,4 @@
-const { NotePayloadSchema, CustomerSalesNotePayloadSchema } = require('./schema');
+const { NotePayloadSchema, EditNotePayloadSchema } = require('./schema');
 const InvariantError = require('../../exceptions/InvariantError');
 
 const NotesValidator = {
@@ -8,8 +8,8 @@ const NotesValidator = {
       throw new InvariantError(validationResult.error.message);
     }
   },
-  validateCustomerSalesNotePayload: (payload) => {
-    const validationResult = CustomerSalesNotePayloadSchema.validate(payload);
+  validateEditNotePayload: (payload) => {
+    const validationResult = EditNotePayloadSchema.validate(payload);
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message);
     }
