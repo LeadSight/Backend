@@ -69,7 +69,7 @@ const DashboardModel = {
                 },
                 {
                     id: "balancePriority",
-                    title: "Priority Customer Avg. Balance",
+                    title: "Priority Cust. Avg. Balance",
                     value: depositAverage,
                     trend: "down",
                     bgColor: "bg-gradient-to-br from-purple-600 to-purple-700",
