@@ -12,6 +12,7 @@ const userRoutes = require('./routes/userRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const customerRoutes = require('./routes/customerRoutes');
 const noteRoutes = require('./routes/noteRoutes');
+const insightRoutes = require('./routes/promptRoutes')
 
 // Middleware
 const authMiddleware = require('./middlewares/authMiddleware');
@@ -36,6 +37,8 @@ app.use('/private', authMiddleware, userRoutes);
 app.use('/private', authMiddleware, dashboardRoutes);
 app.use('/private', authMiddleware, customerRoutes);
 app.use('/private', authMiddleware, noteRoutes);
+app.use('/private', authMiddleware, insightRoutes)
+
 
 // Serve Swagger UI -> only during development
 if (process.env.NODE_ENV === "development") {
