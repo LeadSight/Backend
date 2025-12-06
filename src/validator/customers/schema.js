@@ -23,6 +23,7 @@ const CustomerPayloadSchema = Joi.object({
   cons_conf_idx: Joi.number().required(),
   euribor3m: Joi.number().required(),
   nr_employed: Joi.number().required(),
+  probability: Joi.number().required(),
 });
 
 module.exports = {

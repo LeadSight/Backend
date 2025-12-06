@@ -1,4 +1,3 @@
-const { updateCustomerProbability } = require('../controllers/customerControllers');
 const supabase = require('../helpers/db');
 
 const mergeCustomersWithEcon = (customers, economicIndicators) => {
@@ -46,7 +45,7 @@ const CustomersModel = {
         
         return data;
     },
-    addCustomer: async ({ id, customerName, age, job, marital, education, defaultValue, balance, housing, hasLoan, contact, month, day, duration, campaign, pdays, previous, poutcome }) => {
+    addCustomer: async ({ id, customerName, age, job, marital, education, defaultValue, balance, housing, hasLoan, contact, month, day, duration, campaign, pdays, previous, poutcome, probability }) => {
                 
         const { error } = await supabase
             .from("customers")
@@ -68,7 +67,8 @@ const CustomersModel = {
                 campaign,
                 pdays,
                 previous,
-                poutcome
+                poutcome,
+                probability
             });
 
         if (error) throw error;

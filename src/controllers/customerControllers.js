@@ -44,7 +44,7 @@ const CustomerController = {
     addCustomer: async (req, res) => {
         try {
             CustomersValidator.validateCustomerPayload(req.body);
-            const { customerName, age, job, marital, education, defaultValue, balance, housing, hasLoan, contact, month, day, duration, campaign, pdays, previous, poutcome, emp_var_rate, cons_price_idx, cons_conf_idx, euribor3m, nr_employed } = req.body;
+            const { customerName, age, job, marital, education, defaultValue, balance, housing, hasLoan, contact, month, day, duration, campaign, pdays, previous, poutcome, emp_var_rate, cons_price_idx, cons_conf_idx, euribor3m, nr_employed, probability } = req.body;
             const id = `customer-${nanoid(10)}`;
             const customer = {
                 id,
@@ -64,7 +64,8 @@ const CustomerController = {
                 campaign,
                 pdays,
                 previous,
-                poutcome
+                poutcome,
+                probability
             }
 
             const economic_indicator = {
@@ -118,7 +119,7 @@ const CustomerController = {
                 return response(res, 'Probability must be between 0 and 1', 400, 'fail', { error: 'Invalid probability range' });
             }
 
-            const updateResult = await CustomersModel.updateCustomerProbability(id, numericProb);
+            await CustomersModel.updateCustomerProbability(id, numericProb);
 
             return response(res, 'Probability Updated', 200, 'success', { updated: true });
 

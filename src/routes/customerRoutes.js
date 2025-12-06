@@ -204,8 +204,202 @@ router.get('/customers', authMiddleware, CustomerController.getCustomers);
  */
 router.post('/customers', authMiddleware, CustomerController.addCustomer);
 
+/**
+ * @swagger
+ * /private/customers/status:
+ *   get:
+ *     summary: Get status color based on customer numeric attribute
+ *     description: >
+ *       Provided the user has a valid access token (authenticated and/or authorized),  
+ *       this endpoint returns a TailwindCSS background color representing the status level  
+ *       calculated from a numeric column and value.  
+ *
+ *       The `key` query parameter must be one of the allowed numeric fields:
+ *       `balance`, `campaign`, `previous`, `duration`, `cons_price_idx`, `cons_conf_idx`.
+ *
+ *     tags: [Customer]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: key
+ *         in: query
+ *         required: true
+ *         description: Numeric column to evaluate.
+ *         schema:
+ *           type: string
+ *           enum: [balance, campaign, previous, duration, cons_price_idx, cons_conf_idx]
+ *           example: balance
+ *
+ *       - name: value
+ *         in: query
+ *         required: false
+ *         description: Numeric value to compare against the computed stats.
+ *         schema:
+ *           type: number
+ *           example: 250
+ *
+ *     responses:
+ *       200:
+ *         description: Successfully fetched status color.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Status Color Fetched
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     statusColor:
+ *                       type: string
+ *                       description: TailwindCSS background color based on computed ratio.
+ *                       example: bg-green-500
+ *
+ *       401:
+ *         description: Unauthorized — missing or invalid access token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: fail
+ *                 message:
+ *                   type: string
+ *                   example: Token Unauthorized
+ *
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: fail
+ *                 message:
+ *                   type: string
+ *                   example: Failed to Fetch Status Color
+ */
 router.get('/customers/status', authMiddleware, CustomerController.getStatusColor); // gets status color for numeric columns
 
+/**
+ * @swagger
+ * /private/customers/probability/{id}:
+ *   put:
+ *     summary: Update a customer's probability score
+ *     description: >
+ *       Provided the user has a valid access token (authenticated and/or authorized),  
+ *       this endpoint updates the probability value of a customer.  
+ *
+ *       The probability must be a valid floating point number between **0** and **1**.
+ *
+ *     tags: [Customer]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - name: id
+ *         in: path
+ *         required: true
+ *         description: Unique customer ID.
+ *         schema:
+ *           type: string
+ *           example: customer-gXavd7PCPF
+ *
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               probability:
+ *                 type: number
+ *                 description: Probability value between 0 and 1.
+ *                 example: 0.87
+ *
+ *     responses:
+ *       200:
+ *         description: Probability successfully updated.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 message:
+ *                   type: string
+ *                   example: Probability Updated
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     updated:
+ *                       type: boolean
+ *                       example: true
+ *
+ *       400:
+ *         description: Bad request – missing or invalid probability value.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: fail
+ *                 message:
+ *                   type: string
+ *                   example: Probability must be a valid number
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     error:
+ *                       type: string
+ *                       example: Missing probability
+ *
+ *       401:
+ *         description: Unauthorized — missing or invalid access token.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: fail
+ *                 message:
+ *                   type: string
+ *                   example: Token Unauthorized
+ *
+ *       500:
+ *         description: Internal server error.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: fail
+ *                 message:
+ *                   type: string
+ *                   example: Failed to Fetch Update Probability Score
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     error:
+ *                       type: string
+ *                       example: Unexpected database error
+ */
 router.put('/customers/probability/:id', authMiddleware, CustomerController.updateCustomerProbability);
 
 module.exports = router;

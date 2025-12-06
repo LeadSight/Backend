@@ -37,8 +37,10 @@ app.use('/private', authMiddleware, dashboardRoutes);
 app.use('/private', authMiddleware, customerRoutes);
 app.use('/private', authMiddleware, noteRoutes);
 
-// Serve Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Serve Swagger UI -> only during development
+if (process.env.NODE_ENV === "development") {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+}
 
 app.listen(5000, () => {
     console.log('App Started... Listening to Port 5000 on http://localhost:5000');
